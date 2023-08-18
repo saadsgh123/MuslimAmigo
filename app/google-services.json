@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "313356409357",
+    "project_id": "muslimamigo-fad6c",
+    "storage_bucket": "muslimamigo-fad6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:313356409357:android:b8d804c1948973f07c5344",
+        "android_client_info": {
+          "package_name": "com.marsoftwar.muslimamigo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "313356409357-nr6gpes7lgmcao8oq64aqgns7melbmkt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.marsoftwar.muslimamigo",
+            "certificate_hash": "0b924d6d4195ee20879b8022dd7bfbd7dcece340"
+          }
+        },
+        {
+          "client_id": "313356409357-7uifkmkkmco7njqhj3l5ri4nlc6cmhhc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7ozmqJWaH5jHl4UcHldY_0w9f1NSuT3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "313356409357-7uifkmkkmco7njqhj3l5ri4nlc6cmhhc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
