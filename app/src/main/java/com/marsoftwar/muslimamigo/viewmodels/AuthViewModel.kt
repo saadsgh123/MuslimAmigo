@@ -30,7 +30,7 @@ class AuthViewModel @Inject constructor(
 
     suspend fun createAnAccount(isTaskDone: (Boolean) -> Unit) {
         withContext(Dispatchers.IO){
-            if (validFormat()){
+            if (validFormatForSignUp()){
                 _authState.update { it.copy(isLoading = true) }
                 auth.createUserWithEmailAndPassword(_authState.value.nEmail,_authState.value.nPassword)
                     .addOnCompleteListener { task ->
@@ -52,10 +52,12 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun validFormat() : Boolean {
+    private fun validFormatForSignUp() : Boolean {
         return _authState.value.nEmail.endsWith("@gmail.com") && _authState.value.nPassword.length > 7
     }
-
+    private fun validFormatForSignIn() : Boolean {
+        return _authState.value.email.endsWith("@gmail.com") && _authState.value.password.length > 7
+    }
 
     private fun checkIfSignIn():Boolean {
         return false
@@ -78,32 +80,36 @@ class AuthViewModel @Inject constructor(
         _authState.update { it.copy(email = newEmail) }
     }
 
-    suspend fun signInExistingAccount(isTaskDone:(Boolean)->Unit) {
-        withContext(Dispatchers.IO){
-             if (!_authState.value.isSignIn){
-                auth.signInWithEmailAndPassword(_authState.value.email,_authState.value.password)
-                    .addOnCompleteListener { task->
-                        if (task.isSuccessful){
-                            val user = auth.currentUser
-                            currentUser.value = user?.email.toString()
-                            _authState.update { it.copy(isSignIn = true) }
-                            _error.value = task.exception?.message.toString()
-                            isTaskDone(true)
-                        }else {
-                            _authState.update { it.copy(isError = true) }
-                            _error.value = task.exception?.message.toString()
-                            isTaskDone(false)
-                        }
-                    }
-            } else {
-                _authState.update {
-                    it.copy(isError = true)
-                }
-                 _error.value = "you are already Log in"
-                 isTaskDone(false)
-            }
-        }
+    fun error_handler(error:String) : Boolean{
+        _error.value = error
+        _authState.update { it.copy(isLoading = false, isError = true) }
+        return false
+    }
 
+    suspend fun signInExistingAccount(isTaskDone:(Boolean)->Unit) {
+        if (validFormatForSignIn()){
+            withContext(Dispatchers.IO){
+                _authState.update { it.copy(isLoading = true) }
+                if (!_authState.value.isSignIn){
+                    auth.signInWithEmailAndPassword(_authState.value.email,_authState.value.password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful){
+                                val user = auth.currentUser
+                                currentUser.value = user?.email.toString()
+                                _error.value = task.exception?.message.toString()
+                                isTaskDone(true)
+                                _authState.update { it.copy(isLoading = false, isSignIn = true) }
+                            } else {
+                                isTaskDone(error_handler(task.exception?.message.toString()))
+                            }
+                        }
+                } else {
+                    isTaskDone(error_handler("you are already Log in"))
+                }
+            }
+        }else {
+            _error.value = "Invalid Format"
+        }
     }
 
 

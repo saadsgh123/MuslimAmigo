@@ -63,9 +63,6 @@ fun SheetContentSignUpScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val state = viewModel.authState.collectAsState()
-    val error = remember {
-        mutableStateOf(viewModel.error.value)
-    }
     val isDone = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -82,7 +79,6 @@ Box(modifier = Modifier.fillMaxSize()) {
     if (showDialog){
         CustomDialog(
             isDone = isDone.value,
-            error = error.value,
             onDone = {
                 if (isDone.value){
                     navigateToMainScreens()
@@ -136,17 +132,11 @@ Box(modifier = Modifier.fillMaxSize()) {
 }
 
 @Composable
-fun CustomDialog(
+private fun CustomDialog(
     isDone:Boolean,
-    error: String,
     onDone: () -> Unit,
     isLoading:Boolean
 ) {
-    if (isLoading){
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator()
-        }
-    }else {
         Dialog(
             properties = DialogProperties(
                 dismissOnBackPress = true,
@@ -163,39 +153,50 @@ fun CustomDialog(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text =if(isDone) "your account was created" else "we can't create your account",
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Image(
-                    painter = if (isDone )painterResource(id = R.drawable.ic_task_completed) else painterResource(
-                        id = R.drawable.google
-                    ),
-                    contentDescription = "",
-                    modifier = Modifier.size(100.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onDone,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Text(text = "Continue")
+                if (isLoading){
+                    CircularProgressIndicator()
+                }else{
+                    DialogContent(isDone = isDone) {
+                        onDone()
+                    }
                 }
-
             }
         }
+
+}
+
+@Composable
+private fun DialogContent(isDone: Boolean,onDone: () -> Unit) {
+    Text(
+        text =if(isDone) "your account was created" else "we can't create your account",
+        fontSize = 16.sp,
+        color = Color.Black,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+    Image(
+        painter = if (isDone )painterResource(id = R.drawable.accept) else painterResource(
+            id = R.drawable.cross
+        ),
+        contentDescription = "",
+        modifier = Modifier.size(100.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    Button(
+        onClick = onDone,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(text = "Continue")
     }
+
 }
 
 @Preview
 @Composable
-fun DialogPrev() {
-    CustomDialog(isDone = true, error = "", isLoading = false, onDone = {
+private fun DialogPrev() {
+    CustomDialog(isDone = true, isLoading = false, onDone = {
 
     })
 }
