@@ -90,7 +90,7 @@ class AuthViewModel @Inject constructor(
         if (validFormatForSignIn()){
             withContext(Dispatchers.IO){
                 _authState.update { it.copy(isLoading = true) }
-                if (!_authState.value.isSignIn)''{
+                if (!_authState.value.isSignIn){
                     auth.signInWithEmailAndPassword(_authState.value.email,_authState.value.password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful){
