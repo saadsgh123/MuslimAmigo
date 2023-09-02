@@ -1,5 +1,6 @@
 package com.marsoftwar.muslimamigo.ui.navigation
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -7,20 +8,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.google.firebase.auth.FirebaseAuth
+import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.loginsignup.Auth_ids
 import com.marsoftwar.muslimamigo.ui.loginsignup.EntryScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.LogInSignInScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.SheetContentLogInScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.SheetContentSignUpScreen
+import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 
-fun NavGraphBuilder.AuthenticationGraph(navController: NavHostController,navigateToMainScreens:()-> Unit){
+fun NavGraphBuilder.AuthenticationGraph(navController: NavHostController,googleAuthUiClient: GoogleAuthUiClient,navigateToMainScreens:()-> Unit){
     navigation(startDestination = AuthGraph.Entry.route,route= ParentNav.Auth.route){
         composable(route= AuthGraph.Entry.route){
-            EntryScreen {
+
+            val authViewModel = hiltViewModel<AuthViewModel>()
+
+            EntryScreen(authViewModel) {
                 navController.navigate("LoginSignup/$it"){
                     popUpTo(AuthGraph.Entry.route)
                 }
             }
+
         }
         composable(
             route = AuthGraph.LoginAndSignUp.route,
@@ -29,12 +36,12 @@ fun NavGraphBuilder.AuthenticationGraph(navController: NavHostController,navigat
             })
         ){
             val id = it.arguments?.getString("id")
-            LogInSignInScreen(id = id!!) { vm ->
+            LogInSignInScreen(googleAuthUiClient = googleAuthUiClient) { vm ->
                 when(id){
-                   Auth_ids.SIGN_IN_ID -> SheetContentSignUpScreen(viewModel = vm,navigateToMainScreens, navigateToLogInScreens = {
-                      navController.navigate(AuthGraph.Entry.route)
+                   Auth_ids.SIGN_IN_ID -> SheetContentSignUpScreen(viewModel = vm,googleAuthUiClient, navigateToMainScreens = {
+                      navController.navigate(ParentNav.MainScreens.route)
                    })
-                   Auth_ids.LOG_IN_ID -> SheetContentLogInScreen(viewModel = vm,navigateToMainScreens)
+                   Auth_ids.LOG_IN_ID -> SheetContentLogInScreen(viewModel = vm, googleAuthUiClient = googleAuthUiClient,navigateToMainScreens)
                }
             }
         }

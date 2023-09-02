@@ -1,6 +1,10 @@
 package com.marsoftwar.muslimamigo.ui.loginsignup
 
+import android.app.Activity
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marsoftwar.muslimamigo.R
+import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.theme.DarkCyan
 import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
@@ -49,6 +54,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SheetContentLogInScreen(
     viewModel: AuthViewModel,
+    googleAuthUiClient: GoogleAuthUiClient,
     navigateToMainScreen:()->Unit
 ) {
 
@@ -58,6 +64,20 @@ fun SheetContentLogInScreen(
     val isDone = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val error = viewModel.error.collectAsState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if(result.resultCode == Activity.RESULT_OK) {
+                scope.launch {
+                    val signInResult = googleAuthUiClient.signInWithIntent(
+                        intent = result.data ?: return@launch
+                    )
+                    viewModel.onSignInResult(signInResult)
+                }
+            }
+        }
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (showDialog){
@@ -108,8 +128,21 @@ fun SheetContentLogInScreen(
                 Text(text = "Log In")
             }
             Row {
-                CustomIconButton(image = R.drawable.google)
-                CustomIconButton(image = R.drawable.facebook_bottom)
+                CustomIconButton(image = R.drawable.google){
+                    scope.launch {
+                        val signInIntentSender = googleAuthUiClient.signIn()
+                        launcher.launch(
+                            IntentSenderRequest.Builder(
+                                signInIntentSender ?: return@launch
+                            ).build()
+                        )
+                    }
+                }
+                CustomIconButton(image = R.drawable.facebook_bottom){
+                    scope.launch {
+                        googleAuthUiClient.signOut()
+                    }
+                }
             }
         }
     }

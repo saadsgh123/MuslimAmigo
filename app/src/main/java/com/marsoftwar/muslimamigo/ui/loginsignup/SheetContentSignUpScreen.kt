@@ -1,7 +1,11 @@
 package com.marsoftwar.muslimamigo.ui.loginsignup
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,8 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseAuth
 import com.marsoftwar.muslimamigo.R
+import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.theme.DarkCyan
 import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
@@ -56,15 +62,29 @@ import java.lang.Error
 @Composable
 fun SheetContentSignUpScreen(
     viewModel: AuthViewModel,
-    navigateToMainScreens: () -> Unit,
-    navigateToLogInScreens: () -> Unit,
+    googleAuthUiClient: GoogleAuthUiClient,
+    navigateToMainScreens: () -> Unit
 ) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val state = viewModel.authState.collectAsState()
+    val state = viewModel.authState.collectAsStateWithLifecycle()
     val isDone = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if(result.resultCode == Activity.RESULT_OK) {
+                scope.launch {
+                    val signInResult = googleAuthUiClient.signInWithIntent(
+                        intent = result.data ?: return@launch
+                    )
+                    viewModel.onSignInResult(signInResult)
+                }
+            }
+        }
+    )
 
 
 LaunchedEffect(state.value.isError){
@@ -123,8 +143,19 @@ Box(modifier = Modifier.fillMaxSize()) {
             Text(text = "Sign Up")
         }
         Row {
-            CustomIconButton(image = R.drawable.google)
-            CustomIconButton(image = R.drawable.facebook_bottom)
+            CustomIconButton(image = R.drawable.google){
+                scope.launch {
+                    val signInIntentSender = googleAuthUiClient.signIn()
+                    launcher.launch(
+                        IntentSenderRequest.Builder(
+                            signInIntentSender ?: return@launch
+                        ).build()
+                    )
+                }
+            }
+            CustomIconButton(image = R.drawable.facebook_bottom){
+
+            }
         }
     }
 }

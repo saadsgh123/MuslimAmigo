@@ -12,9 +12,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CustomIconButton(image:Int) {
+fun CustomIconButton(image:Int,onClick:()->Unit) {
     IconButton(
-        onClick = { /*TODO*/ },
+        onClick = onClick,
         modifier = Modifier
             .padding(vertical = 16.dp, horizontal = 4.dp)
             .border(

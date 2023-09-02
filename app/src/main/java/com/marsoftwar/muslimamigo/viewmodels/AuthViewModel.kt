@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
+import com.marsoftwar.muslimamigo.authentication.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,6 +111,14 @@ class AuthViewModel @Inject constructor(
         }else {
             _error.value = "Invalid Format"
         }
+    }
+
+    fun onSignInResult(result: SignInResult) {
+        _authState.update { it.copy(
+            isSignIn = result.data != null,
+            isError = result.errorMessage?.isNotEmpty() == true,
+        ) }
+        _error.value = result.errorMessage.toString()
     }
 
 

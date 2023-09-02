@@ -1,5 +1,9 @@
 package com.marsoftwar.muslimamigo.ui.loginsignup
 
+import android.app.Activity.RESULT_OK
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -15,8 +19,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,25 +31,52 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marsoftwar.muslimamigo.R
+import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.theme.DarkCyan
 import com.marsoftwar.muslimamigo.viewmodels.AuthUiState
 import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogInSignInScreen(modifier: Modifier = Modifier,id:String,content: @Composable() ((AuthViewModel) -> Unit)?) {
+fun LogInSignInScreen(
+    modifier: Modifier = Modifier,
+    googleAuthUiClient: GoogleAuthUiClient,
+    content: @Composable() ((AuthViewModel) -> Unit)?
+) {
 
     val config = LocalConfiguration.current
     val height = config.screenHeightDp
+    val scope = rememberCoroutineScope()
 
     val authViewModel = hiltViewModel<AuthViewModel>()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if(result.resultCode == RESULT_OK) {
+                scope.launch {
+                    val signInResult = googleAuthUiClient.signInWithIntent(
+                        intent = result.data ?: return@launch
+                    )
+                    authViewModel.onSignInResult(signInResult)
+                }
+            }
+        }
+    )
+
+    LaunchedEffect(key1 = Unit){
+
+    }
+
+
 
     BottomSheetScaffold(
         sheetContent = {
          content?.invoke(authViewModel)
         },
     content = {
-        ScreenImage()
+        ScreenImage(modifier = modifier)
     },
     sheetContentColor = Color.White,
         sheetPeekHeight = height.dp * 0.7f
@@ -50,11 +84,11 @@ fun LogInSignInScreen(modifier: Modifier = Modifier,id:String,content: @Composab
 }
 
 @Composable
-fun ScreenImage() {
+fun ScreenImage(modifier: Modifier) {
     Image(
         painter = painterResource(id = R.drawable.logimage),
         contentDescription = "",
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight(0.3f)
     )
