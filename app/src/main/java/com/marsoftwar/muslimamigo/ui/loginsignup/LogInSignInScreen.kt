@@ -59,7 +59,9 @@ fun LogInSignInScreen(
                     val signInResult = googleAuthUiClient.signInWithIntent(
                         intent = result.data ?: return@launch
                     )
-                    authViewModel.onSignInResult(signInResult)
+                    authViewModel.onSignInResult(signInResult){ done->
+
+                    }
                 }
             }
         }

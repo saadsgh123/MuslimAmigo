@@ -12,11 +12,14 @@ import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 
 @Composable
-fun NestedNavGraph(navController: NavHostController,googleAuthUiClient: GoogleAuthUiClient) {
-
+fun NestedNavGraph(
+    navController: NavHostController,
+    googleAuthUiClient: GoogleAuthUiClient,
+    startDestination: String
+) {
     NavHost(
         navController = navController,
-        startDestination = ParentNav.Auth.route,
+        startDestination = startDestination,
         route = ParentNav.ROOT.route
     ){
 
@@ -26,7 +29,7 @@ fun NestedNavGraph(navController: NavHostController,googleAuthUiClient: GoogleAu
             }
         }
         composable(route = ParentNav.MainScreens.route){
-            MainScreen()
+            MainScreen(googleAuthUiClient)
         }
     }
 }

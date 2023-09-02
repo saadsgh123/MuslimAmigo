@@ -73,7 +73,10 @@ fun SheetContentLogInScreen(
                     val signInResult = googleAuthUiClient.signInWithIntent(
                         intent = result.data ?: return@launch
                     )
-                    viewModel.onSignInResult(signInResult)
+                    viewModel.onSignInResult(signInResult){ done ->
+                        isDone.value = done
+                        showDialog=true
+                    }
                 }
             }
         }

@@ -22,6 +22,7 @@ import com.marsoftwar.muslimamigo.ui.common.CustomNavBar
 import com.marsoftwar.muslimamigo.ui.home.CustomTopAppBar
 import com.marsoftwar.muslimamigo.ui.navigation.MainNavGraph
 import com.marsoftwar.muslimamigo.ui.navigation.NestedNavGraph
+import com.marsoftwar.muslimamigo.ui.navigation.ParentNav
 import com.marsoftwar.muslimamigo.ui.theme.ComposeTutoTheme
 import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var googleAuthUiClient: GoogleAuthUiClient
+    private val auth = Firebase.auth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,14 +42,18 @@ class MainActivity : ComponentActivity() {
             ComposeTutoTheme {
                 // A surface container using the 'background' color from the theme
                 val navController = rememberNavController()
-                NestedNavGraph(navController = navController, googleAuthUiClient = googleAuthUiClient)
+                NestedNavGraph(
+                    navController = navController,
+                    googleAuthUiClient = googleAuthUiClient,
+                    startDestination = if (auth.currentUser != null) ParentNav.MainScreens.route else ParentNav.Auth.route
+                )
             }
         }
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(googleAuthUiClient: GoogleAuthUiClient) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -60,7 +66,7 @@ fun MainScreen() {
                 CustomNavBar(navController = navController)
             },
             topBar = {
-                CustomTopAppBar(size = 200.dp)
+                CustomTopAppBar(size = 200.dp, googleAuthUiClient = googleAuthUiClient)
             })
     }
 }
@@ -68,6 +74,6 @@ fun MainScreen() {
 @Preview
 @Composable
 fun ComposePrev() {
-    MainScreen()
+
 }
 

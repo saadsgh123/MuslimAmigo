@@ -113,12 +113,13 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun onSignInResult(result: SignInResult) {
+    fun onSignInResult(result: SignInResult,isDone: (Boolean) -> Unit) {
         _authState.update { it.copy(
             isSignIn = result.data != null,
             isError = result.errorMessage?.isNotEmpty() == true,
         ) }
         _error.value = result.errorMessage.toString()
+        isDone(result.data != null)
     }
 
 
