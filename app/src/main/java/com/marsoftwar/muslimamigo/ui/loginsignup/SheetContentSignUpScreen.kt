@@ -8,6 +8,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.AlertDialog
@@ -33,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,25 +72,8 @@ fun SheetContentSignUpScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val state = viewModel.authState.collectAsStateWithLifecycle()
-    val isDone = remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult(),
-        onResult = { result ->
-            if(result.resultCode == Activity.RESULT_OK) {
-                scope.launch {
-                    val signInResult = googleAuthUiClient.signInWithIntent(
-                        intent = result.data ?: return@launch
-                    )
-                    viewModel.onSignInResult(signInResult){ done->
-                        isDone.value = done
-                        showDialog=true
-                    }
-                }
-            }
-        }
-    )
+    var isDone by remember { mutableStateOf(false) }
 
 
 LaunchedEffect(state.value.isError){
@@ -98,12 +84,11 @@ LaunchedEffect(state.value.isError){
 
 
 Box(modifier = Modifier.fillMaxSize()) {
-
     if (showDialog){
         CustomDialog(
-            isDone = isDone.value,
+            isDone = isDone,
             onDone = {
-                if (isDone.value){
+                if (isDone){
                     navigateToMainScreens()
                 }else {
                     showDialog=false
@@ -113,7 +98,6 @@ Box(modifier = Modifier.fillMaxSize()) {
             isLoading = state.value.isLoading
         )
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -133,7 +117,7 @@ Box(modifier = Modifier.fillMaxSize()) {
             onClick = {
                 scope.launch {
                     viewModel.createAnAccount {
-                        isDone.value = it
+                        isDone = it
                     }
                     showDialog=true
                 }
@@ -146,22 +130,68 @@ Box(modifier = Modifier.fillMaxSize()) {
             Text(text = "Sign Up")
         }
         Row {
-            CustomIconButton(image = R.drawable.google){
-                scope.launch {
-                    val signInIntentSender = googleAuthUiClient.signIn()
-                    launcher.launch(
-                        IntentSenderRequest.Builder(
-                            signInIntentSender ?: return@launch
-                        ).build()
+            GoogleAuthLauncherButton(
+                googleAuthUiClient = googleAuthUiClient,
+                viewModel = viewModel
+            ){done,showdialog->
+                isDone= done
+                showDialog=showdialog
+            }
+            CustomFacebookButton(
+                onSuccess = {},
+                onCancel = { /*TODO*/ },
+                onError = {},
+                modifier = Modifier
+                    .padding(vertical = 16.dp, horizontal = 4.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Transparent,
+                        shape = CircleShape
                     )
-                }
-            }
-            CustomIconButton(image = R.drawable.facebook_bottom){
-
-            }
+            )
         }
     }
 }
+}
+
+@Composable
+fun GoogleAuthLauncherButton(
+    googleAuthUiClient: GoogleAuthUiClient,
+    viewModel: AuthViewModel,
+    isShowDone:(Boolean,Boolean)->Unit
+) {
+    val isDone = remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if(result.resultCode == Activity.RESULT_OK) {
+                scope.launch {
+                    val signInResult = googleAuthUiClient.signInWithIntent(
+                        intent = result.data ?: return@launch
+                    )
+                    viewModel.onSignInResult(signInResult){ done->
+                        isDone.value = done
+                        showDialog=true
+                        isShowDone(done,true)
+                    }
+                }
+            }
+        }
+    )
+
+    CustomIconButton(image = R.drawable.google){
+        scope.launch {
+            val signInIntentSender = googleAuthUiClient.signIn()
+            launcher.launch(
+                IntentSenderRequest.Builder(
+                    signInIntentSender ?: return@launch
+                ).build()
+            )
+        }
+    }
 
 }
 

@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(googleAuthUiClient: GoogleAuthUiClient) {
+fun MainScreen(googleAuthUiClient: GoogleAuthUiClient,navigateToAuth:()->Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -66,7 +66,13 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient) {
                 CustomNavBar(navController = navController)
             },
             topBar = {
-                CustomTopAppBar(size = 200.dp, googleAuthUiClient = googleAuthUiClient)
+                CustomTopAppBar(
+                    size = 200.dp,
+                    googleAuthUiClient = googleAuthUiClient,
+                    navigateToAuth = {
+                        navigateToAuth()
+                    }
+                )
             })
     }
 }

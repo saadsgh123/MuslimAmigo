@@ -29,7 +29,9 @@ fun NestedNavGraph(
             }
         }
         composable(route = ParentNav.MainScreens.route){
-            MainScreen(googleAuthUiClient)
+            MainScreen(googleAuthUiClient){
+                navController.navigate(ParentNav.ROOT.route)
+            }
         }
     }
 }

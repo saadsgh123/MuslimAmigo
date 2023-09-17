@@ -12,6 +12,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -36,10 +39,22 @@ import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 
 @Composable
-fun CustomTopAppBar(size: Dp,googleAuthUiClient: GoogleAuthUiClient) {
+fun CustomTopAppBar(navigateToAuth:()->Unit,size: Dp,googleAuthUiClient: GoogleAuthUiClient) {
 
     var text by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog){
+        SignOutConfirmationDialog(onConfirm = {
+            scope.launch {
+                googleAuthUiClient.signOut()
+            }
+            navigateToAuth()
+        }) {
+            showDialog = !showDialog
+        }
+    }
 
     Column(modifier = Modifier
         .height(size)
@@ -64,9 +79,7 @@ fun CustomTopAppBar(size: Dp,googleAuthUiClient: GoogleAuthUiClient) {
             )
 
             IconButton(onClick = {
-                scope.launch {
-                    googleAuthUiClient.signOut()
-                }
+                showDialog = !showDialog
             }) {
                 Icon(
                     imageVector = Icons.Default.Person,
@@ -100,3 +113,39 @@ fun CustomTopAppBar(size: Dp,googleAuthUiClient: GoogleAuthUiClient) {
         )
     }
 }
+
+@Composable
+fun SignOutConfirmationDialog(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onCancel() },
+        title = {
+            Text(text = "Sign Out")
+        },
+        text = {
+            Text(text = "Are you sure you want to sign out?")
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm()
+                }
+            ) {
+                Text(text = "Confirm")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    onCancel()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text(text = "Cancel")
+            }
+        }
+    )
+}
+
