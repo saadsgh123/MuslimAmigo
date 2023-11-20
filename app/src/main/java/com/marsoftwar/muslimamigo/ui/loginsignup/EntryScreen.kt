@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marsoftwar.muslimamigo.R
 import com.marsoftwar.muslimamigo.ui.theme.DarkCyan
-import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
+import com.marsoftwar.muslimamigo.viewmodels.auth.AuthViewModel
 
 @Composable
-fun EntryScreen(viewModel: AuthViewModel,navigateToSignUp:(String) -> Unit) {
+fun EntryScreen(viewModel: AuthViewModel, navigateToSignUp:(String) -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

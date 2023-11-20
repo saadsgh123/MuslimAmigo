@@ -1,15 +1,10 @@
 package com.marsoftwar.muslimamigo.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.firebase.auth.FirebaseAuth
-import com.marsoftwar.muslimamigo.MainScreen
 import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
-import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
 
 @Composable
 fun NestedNavGraph(
@@ -29,9 +24,7 @@ fun NestedNavGraph(
             }
         }
         composable(route = ParentNav.MainScreens.route){
-            MainScreen(googleAuthUiClient){
-                navController.navigate(ParentNav.ROOT.route)
-            }
+
         }
     }
 }

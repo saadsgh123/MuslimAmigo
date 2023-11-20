@@ -39,22 +39,11 @@ import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 
 @Composable
-fun CustomTopAppBar(navigateToAuth:()->Unit,size: Dp,googleAuthUiClient: GoogleAuthUiClient) {
-
+fun CustomTopAppBar(
+    size: Dp
+) {
     var text by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog){
-        SignOutConfirmationDialog(onConfirm = {
-            scope.launch {
-                googleAuthUiClient.signOut()
-            }
-            navigateToAuth()
-        }) {
-            showDialog = !showDialog
-        }
-    }
 
     Column(modifier = Modifier
         .height(size)
@@ -71,22 +60,12 @@ fun CustomTopAppBar(navigateToAuth:()->Unit,size: Dp,googleAuthUiClient: GoogleA
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Hi, Saad",
+                text = "Muslim Amigo",
                 fontSize = 24.sp,
                 color = Color.White,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold
             )
-
-            IconButton(onClick = {
-                showDialog = !showDialog
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "",
-                    tint = Color.White
-                )
-            }
         }
 
         TextField(

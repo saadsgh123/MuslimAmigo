@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +24,6 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marsoftwar.muslimamigo.R
 import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.theme.DarkCyan
-import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
+import com.marsoftwar.muslimamigo.viewmodels.auth.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -130,23 +126,17 @@ fun SheetContentLogInScreen(
             ) {
                 Text(text = "Log In")
             }
-            Row {
-                CustomIconButton(image = R.drawable.google){
-                    scope.launch {
-                        val signInIntentSender = googleAuthUiClient.signIn()
-                        launcher.launch(
-                            IntentSenderRequest.Builder(
-                                signInIntentSender ?: return@launch
-                            ).build()
-                        )
-                    }
-                }
-                CustomIconButton(image = R.drawable.facebook_bottom){
-                    scope.launch {
-                        googleAuthUiClient.signOut()
-                    }
+            CustomIconButton(image = R.drawable.google){
+                scope.launch {
+                    val signInIntentSender = googleAuthUiClient.signIn()
+                    launcher.launch(
+                        IntentSenderRequest.Builder(
+                            signInIntentSender ?: return@launch
+                        ).build()
+                    )
                 }
             }
+
         }
     }
 }

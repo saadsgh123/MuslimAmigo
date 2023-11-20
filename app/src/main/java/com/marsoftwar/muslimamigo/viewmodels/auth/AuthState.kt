@@ -1,4 +1,4 @@
-package com.marsoftwar.muslimamigo.viewmodels
+package com.marsoftwar.muslimamigo.viewmodels.auth
 
 //A default value for the variable is eligible
 data class AuthUiState(

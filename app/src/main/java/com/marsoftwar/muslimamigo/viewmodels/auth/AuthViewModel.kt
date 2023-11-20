@@ -1,8 +1,7 @@
-package com.marsoftwar.muslimamigo.viewmodels
+package com.marsoftwar.muslimamigo.viewmodels.auth
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.marsoftwar.muslimamigo.authentication.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,11 +15,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
 
     private var _authState = MutableStateFlow(AuthUiState())
     val authState:StateFlow<AuthUiState> = _authState.asStateFlow()
+
+    /*private val userState:StateFlow<UserState> = userPreferencesRepo.preferenceState.map { userPref->
+        UserState(
+            isSignIn = userPref.isSignIn,
+            userName = userPref.userName,
+            userEmail = userPref.userEmail
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = UserState()
+    )
+
+    fun selectLayoutSetting(userState: UserState) {
+        viewModelScope.launch {
+            userPreferencesRepo.saveUserPreference(UserPreference(
+                isSignIn = userState.isSignIn,
+                userName = userState.userName,
+                userEmail = userState.userEmail
+            ))
+        }
+    }*/
 
     private var _error = MutableStateFlow("")
     val error:StateFlow<String> = _error.asStateFlow()
@@ -35,21 +56,43 @@ class AuthViewModel @Inject constructor(
                 _authState.update { it.copy(isLoading = true) }
                 auth.createUserWithEmailAndPassword(_authState.value.nEmail,_authState.value.nPassword)
                     .addOnCompleteListener { task ->
-                        if (task.isSuccessful){
+                        if (task.isSuccessful) {
                             isTaskDone(task.isSuccessful)
                             _authState.update { it.copy(isLoading = false) }
-                        }else {
-                            _authState.update { it.copy(isError = true) }
+                        } else {
                             _error.value = task.exception?.message.toString()
                             isTaskDone(task.isSuccessful)
-                            _authState.update { it.copy(isLoading = false) }
+                            _authState.update { it.copy(isLoading = false, isError = true) }
                         }
                     }
             } else {
-                _authState.update { it.copy(isError = true) }
                 isTaskDone(false)
-                _authState.update { it.copy(isLoading = false) }
+                _authState.update { it.copy(isLoading = false, isError = true) }
             }
+        }
+    }
+
+    suspend fun signInExistingAccount(isTaskDone:(Boolean)->Unit) {
+        if (validFormatForSignIn()){
+            withContext(Dispatchers.IO){
+                _authState.update { it.copy(isLoading = true) }
+                if (!_authState.value.isSignIn){
+                    auth.signInWithEmailAndPassword(_authState.value.email,_authState.value.password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful){
+                                _error.value = task.exception?.message.toString()
+                                isTaskDone(true)
+                                _authState.update { it.copy(isLoading = false, isSignIn = true) }
+                            } else {
+                                isTaskDone(error_handler(task.exception?.message.toString()))
+                            }
+                        }
+                } else {
+                    isTaskDone(error_handler("you are already Log in"))
+                }
+            }
+        }else {
+            _error.value = "Invalid Format"
         }
     }
 
@@ -87,31 +130,7 @@ class AuthViewModel @Inject constructor(
         return false
     }
 
-    suspend fun signInExistingAccount(isTaskDone:(Boolean)->Unit) {
-        if (validFormatForSignIn()){
-            withContext(Dispatchers.IO){
-                _authState.update { it.copy(isLoading = true) }
-                if (!_authState.value.isSignIn){
-                    auth.signInWithEmailAndPassword(_authState.value.email,_authState.value.password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful){
-                                val user = auth.currentUser
-                                currentUser.value = user?.email.toString()
-                                _error.value = task.exception?.message.toString()
-                                isTaskDone(true)
-                                _authState.update { it.copy(isLoading = false, isSignIn = true) }
-                            } else {
-                                isTaskDone(error_handler(task.exception?.message.toString()))
-                            }
-                        }
-                } else {
-                    isTaskDone(error_handler("you are already Log in"))
-                }
-            }
-        }else {
-            _error.value = "Invalid Format"
-        }
-    }
+
 
     fun onSignInResult(result: SignInResult,isDone: (Boolean) -> Unit) {
         _authState.update { it.copy(
@@ -124,9 +143,3 @@ class AuthViewModel @Inject constructor(
 
 
 }
-
-
-
-
-
-

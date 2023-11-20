@@ -1,4 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ComposeTuto</string>
-    <string name="Google_auth_id">313356409357-55hh63g1d9t5bi55ial98c0k0bqka0qj.apps.googleusercontent.com</string>
+    <string name="Google_auth_id" tools:ignore="TypographyDashes">313356409357-55hh63g1d9t5bi55ial98c0k0bqka0qj.apps.googleusercontent.com</string>
+    <string name="facebook_app_id">227169429940303</string>
+    <string name="fb_login_protocol_scheme">fb227169429940303</string>
+    <string name="facebook_client_token">3f88a371a9daa75ad4d3f1d7c0db882d</string>
+    <string name="txt_connect_with_facebook">Log in</string>
 </resources>

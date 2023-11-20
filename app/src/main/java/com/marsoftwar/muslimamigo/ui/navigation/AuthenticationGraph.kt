@@ -7,14 +7,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.google.firebase.auth.FirebaseAuth
 import com.marsoftwar.muslimamigo.authentication.GoogleAuthUiClient
 import com.marsoftwar.muslimamigo.ui.loginsignup.Auth_ids
 import com.marsoftwar.muslimamigo.ui.loginsignup.EntryScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.LogInSignInScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.SheetContentLogInScreen
 import com.marsoftwar.muslimamigo.ui.loginsignup.SheetContentSignUpScreen
-import com.marsoftwar.muslimamigo.viewmodels.AuthViewModel
+import com.marsoftwar.muslimamigo.viewmodels.auth.AuthViewModel
 
 fun NavGraphBuilder.AuthenticationGraph(navController: NavHostController,googleAuthUiClient: GoogleAuthUiClient,navigateToMainScreens:()-> Unit){
     navigation(startDestination = AuthGraph.Entry.route,route= ParentNav.Auth.route){
