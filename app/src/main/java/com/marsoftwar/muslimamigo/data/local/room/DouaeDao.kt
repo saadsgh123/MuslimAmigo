@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DouaeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDouae()
+    suspend fun insertDouae(douaeEntity: DouaeEntity)
 
     @Update
-    suspend fun update()
+    suspend fun update(douaeEntity: DouaeEntity)
 
     @Query("SELECT * FROM douae")
     fun getAllDouaesFormDb() : Flow<List<DouaeEntity>>
 
+    @Query("DELETE FROM douae")
+    suspend fun deleteAllDouaes()
 }

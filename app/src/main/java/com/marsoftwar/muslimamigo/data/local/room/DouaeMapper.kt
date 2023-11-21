@@ -8,6 +8,6 @@ fun Douae.toDouaeEntity() : DouaeEntity {
 
 fun DouaeEntity.toDouae() : Douae {
     return Douae(
-        id, title, content, category
+        id!!, title, content, category
     )
 }

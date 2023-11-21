@@ -20,10 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marsoftwar.muslimamigo.R
+import com.marsoftwar.muslimamigo.data.local.room.Douae
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardView() {
+fun CardView(douae: Douae) {
     Card(
         onClick = { /*TODO*/ },
         modifier = Modifier
@@ -46,7 +47,7 @@ fun CardView() {
                     .clip(RoundedCornerShape(11.dp)),
                 contentScale = ContentScale.Crop
             )
-            Text(text = "Traveling doua",
+            Text(text = "${douae.title}",
                 modifier = Modifier
                 .weight(0.4f)
                 .fillMaxWidth()
@@ -59,5 +60,5 @@ fun CardView() {
 @Preview()
 @Composable
 fun CardPRECV() {
-    CardView()
+    //CardView()
 }
