@@ -27,6 +27,7 @@ class HomeViewModel@Inject constructor(
 
     init {
         viewModelScope.launch {
+            //repository.deleteAllDouaes()
             repository.getAllDouaesFromDb().collectLatest { douaes ->
                 _uiState.update {
                     it.copy(douaes = douaes)
